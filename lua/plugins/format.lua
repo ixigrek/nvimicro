@@ -2,7 +2,7 @@
 return {
   "stevearc/conform.nvim",
   event = { "BufWritePre" },
-  cmd = "ConformInfo",
+  cmd = { "ConformInfo", "FormatDisable", "FormatEnable" },
   keys = {
     {
       "<leader>cf",
@@ -13,8 +13,15 @@ return {
     },
   },
   opts = {
-    -- `lsp_fallback` is deprecated upstream in favour of `lsp_format`
-    format_on_save = { timeout_ms = 1000, lsp_format = "fallback" },
+    -- `lsp_fallback` is deprecated upstream in favour of `lsp_format`.
+    -- A function (rather than a table) so format-on-save can be switched off
+    -- per buffer or globally for repos whose style this distro would fight.
+    format_on_save = function(bufnr)
+      if vim.g.nvimicro_disable_autoformat or vim.b[bufnr].nvimicro_disable_autoformat then
+        return nil
+      end
+      return { timeout_ms = 1000, lsp_format = "fallback" }
+    end,
     formatters_by_ft = {
       python = { "ruff_format" },
       rust = { "rustfmt" },
@@ -37,4 +44,21 @@ return {
       markdown = { "prettier" },
     },
   },
+  config = function(_, opts)
+    require("conform").setup(opts)
+
+    -- `:FormatDisable` affects the current buffer, `:FormatDisable!` everything.
+    vim.api.nvim_create_user_command("FormatDisable", function(args)
+      if args.bang then
+        vim.g.nvimicro_disable_autoformat = true
+      else
+        vim.b.nvimicro_disable_autoformat = true
+      end
+    end, { desc = "Disable format-on-save (! = globally)", bang = true })
+
+    vim.api.nvim_create_user_command("FormatEnable", function()
+      vim.b.nvimicro_disable_autoformat = false
+      vim.g.nvimicro_disable_autoformat = false
+    end, { desc = "Re-enable format-on-save" })
+  end,
 }
