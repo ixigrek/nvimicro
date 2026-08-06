@@ -34,6 +34,8 @@ return {
       yaml = { "yamlfmt" },
       ["yaml.ansible"] = { "yamlfmt" },
       lua = { "stylua" },
+      sh = { "shfmt" },
+      bash = { "shfmt" },
       javascript = { "prettier" },
       typescript = { "prettier" },
       javascriptreact = { "prettier" },
