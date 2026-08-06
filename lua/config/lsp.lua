@@ -35,11 +35,22 @@ vim.diagnostic.config({
   },
 })
 
+-- Split of responsibilities on Python: ruff lints (F401 and friends) and
+-- formats, pyright covers types and import resolution. Pyright's tagged hints
+-- ("X is not accessed", severity HINT, tag unnecessary) are its duplicate of
+-- ruff's unused-symbol rules, so they are turned off; its errors are untouched.
 vim.lsp.config("pyright", {
   cmd = { "pyright-langserver", "--stdio" },
   filetypes = { "python" },
   root_markers = { "pyproject.toml", "setup.py", "setup.cfg", "requirements.txt", "Pipfile", ".git" },
   capabilities = capabilities,
+  -- Note the section: pyright pulls this one from the "pyright" scope, not
+  -- "python.analysis" (see _applyLanguageServerOptions in pyright-internal.js).
+  settings = {
+    pyright = {
+      disableTaggedHints = true,
+    },
+  },
 })
 
 vim.lsp.config("rust_analyzer", {
