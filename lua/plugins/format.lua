@@ -22,6 +22,13 @@ return {
       end
       return { timeout_ms = 1000, lsp_format = "fallback" }
     end,
+    -- The no-binaries contract (CLAUDE.md) requires every code path that
+    -- shells out to degrade silently when the binary is absent. conform's
+    -- own default (notify_no_formatters = true) violates that: it posts a
+    -- WARN vim.notify on every write once a filetype's configured formatter
+    -- is missing from $PATH. Disable it here, for the whole table, not just
+    -- the entries this task adds.
+    notify_no_formatters = false,
     formatters_by_ft = {
       python = { "ruff_format" },
       rust = { "rustfmt" },
