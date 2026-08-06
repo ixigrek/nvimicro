@@ -5,7 +5,13 @@ return {
   version = "*",
   dependencies = { "zbirenbaum/copilot.lua", "giuxtaposition/blink-cmp-copilot" },
   opts = {
-    keymap = { preset = "default" },
+    keymap = {
+      preset = "default",
+      -- <C-CR> needs a terminal speaking the Kitty keyboard protocol to be told
+      -- apart from <CR>; the preset's <C-y> stays bound as a fallback for
+      -- terminals that cannot.
+      ["<C-CR>"] = { "select_and_accept", "fallback" },
+    },
     appearance = { nerd_font_variant = "mono" },
     completion = {
       documentation = { auto_show = true, auto_show_delay_ms = 200 },
