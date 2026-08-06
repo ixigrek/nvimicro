@@ -1,0 +1,5 @@
+# Local LSP/treesitter test fixtures — not part of the distro
+test-langs/
+
+# Claude Code workspace (worktrees, session state)
+.claude/
