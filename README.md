@@ -59,7 +59,7 @@ This distro does **not** install LSP servers, formatters, or linters for you
 | C compiler      | usually preinstalled (Xcode CLT / build-essential)                                              | `apt install build-essential`                           |
 
 Both are required: `nvim-treesitter`'s `main` branch compiles every parser
-locally. Parsers land in `~/.local/share/nvimicro/site/parser/`, not in the
+locally. Parsers land in `stdpath('data')/site/parser/`, not in the
 plugin directory. Installation is async — a cold first launch highlights with
 regular `syntax` until the parser finishes building, then picks it up.
 
