@@ -1,0 +1,1 @@
+-- lua/config/lsp.lua (minimal stub, expanded in Task 4)
