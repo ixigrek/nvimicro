@@ -1,5 +1,6 @@
-# Local LSP/treesitter test fixtures — not part of the distro
-test-langs/
-
-# Claude Code workspace (worktrees, session state)
+# Claude Code workspace (session state)
 .claude/
+
+# Scratch dirs language servers/linters create in the cwd
+.ansible/
+.ruff_cache/
