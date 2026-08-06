@@ -234,6 +234,11 @@ Leader is `<Space>`.
 | `<C-h>` / `<C-j>` / `<C-k>` / `<C-l>`                     | Move focus between windows                                                         |
 | `<Esc>`                                                   | Clear search highlight                                                             |
 | `<C-y>` / `<C-CR>`                                        | Accept completion (`<C-CR>` needs a terminal speaking the Kitty keyboard protocol) |
+| `af` / `if`                                               | Select a/inner function (operator + visual mode)                                   |
+| `ac` / `ic`                                               | Select a/inner class                                                               |
+| `aa` / `ia`                                               | Select a/inner parameter                                                           |
+| `]f` / `[f`                                               | Next/prev function start                                                           |
+| `]]` / `[[`                                               | Next/prev class start                                                              |
 
 Format-on-save is on by default. `:FormatDisable` turns it off for the current
 buffer, `:FormatDisable!` for the whole session, `:FormatEnable` restores both
@@ -246,6 +251,11 @@ cursor's line only (native `virtual_lines`), which avoids the horizontal
 overflow `virtual_text` hits when one line carries several diagnostics.
 `vim.diagnostic.config()` is read at startup — a long-lived session started
 before a config change keeps the old rendering until you restart.
+
+Textobjects come from `nvim-treesitter-textobjects` (`main` branch, matching
+`nvim-treesitter`) and need the relevant parser compiled — a filetype whose
+parser is still building falls back to Vim's built-in `af`/`if`, which do
+nothing useful. Give a cold first launch a moment.
 
 ## Performance
 
