@@ -8,23 +8,39 @@ packages, installed once and shared with everything else on the machine. A tool
 that is missing is an ordinary state — the feature that needs it degrades
 quietly, nothing errors.
 
-## Running nvimicro
+## Install
 
-Always set `NVIM_APPNAME=nvimicro` so this config's plugins/state/cache are
-fully isolated from your personal Neovim setup — otherwise `stdpath('data')`
-resolves to your regular `~/.local/share/nvim`, and any plugin already
-installed there for a different config can collide with this one (wrong
-branch, wrong version, confusing errors).
+### As your default config
+
+Clone into `~/.config/nvim` and run `nvim`. Nothing else — no env var, no `-u`.
 
 ```bash
-NVIM_APPNAME=nvimicro nvim -u init.lua
+# move any existing config AND its state out of the way first:
+# a config already installed there leaves plugins in ~/.local/share/nvim
+# that collide with this one (wrong branch, wrong version, confusing errors)
+mv ~/.config/nvim ~/.config/nvim.bak
+mv ~/.local/share/nvim ~/.local/share/nvim.bak
+mv ~/.local/state/nvim ~/.local/state/nvim.bak
+mv ~/.cache/nvim ~/.cache/nvim.bak
+
+git clone <this-repo> ~/.config/nvim
+nvim   # lazy.nvim bootstraps itself, installs plugins, compiles parsers
 ```
 
-Alias this in your shell for convenience:
+To go back, reverse the four `mv`s.
+
+### Side by side with another config
+
+Keep it anywhere and give it its own `NVIM_APPNAME`, which isolates config
+*and* plugins/state/cache (`~/.config/nvimicro`, `~/.local/share/nvimicro`, …):
 
 ```bash
-alias nvimicro='NVIM_APPNAME=nvimicro nvim -u /path/to/nvimicro/init.lua'
+ln -s /path/to/nvimicro ~/.config/nvimicro
+alias nvimicro='NVIM_APPNAME=nvimicro nvim'
 ```
+
+`init.lua` puts its own directory on the runtimepath, so `nvim -u
+/path/to/nvimicro/init.lua` also works from anywhere without either setup.
 
 Use a terminal with a [Nerd Font](https://www.nerdfonts.com/) — the file
 explorer, statusline and completion menu render icons through
@@ -37,10 +53,10 @@ This distro does **not** install LSP servers, formatters, or linters for you
 
 ### Treesitter
 
-| Tool | Install (macOS/brew) | Install (apt) |
-|---|---|---|
+| Tool            | Install (macOS/brew)                                                                            | Install (apt)                                           |
+| --------------- | ----------------------------------------------------------------------------------------------- | ------------------------------------------------------- |
 | tree-sitter CLI | `brew install tree-sitter-cli` (NOT the plain `tree-sitter` formula — that one is library-only) | see https://github.com/tree-sitter/tree-sitter/releases |
-| C compiler | usually preinstalled (Xcode CLT / build-essential) | `apt install build-essential` |
+| C compiler      | usually preinstalled (Xcode CLT / build-essential)                                              | `apt install build-essential`                           |
 
 Both are required: `nvim-treesitter`'s `main` branch compiles every parser
 locally. Parsers land in `~/.local/share/nvimicro/site/parser/`, not in the
@@ -49,23 +65,23 @@ regular `syntax` until the parser finishes building, then picks it up.
 
 ### LSP servers
 
-| Tool | Install (macOS/brew) | Install (apt) | Install (cargo/other) |
-|---|---|---|---|
-| pyright | `npm i -g pyright` | `npm i -g pyright` | — |
-| rust-analyzer | `brew install rust-analyzer` | `apt install rust-analyzer` | `rustup component add rust-analyzer` |
-| gopls | `go install golang.org/x/tools/gopls@latest` | same | same |
-| terraform-ls | `brew install hashicorp/tap/terraform-ls` | see releases page | — |
-| ansible-language-server | `npm i -g @ansible/ansible-language-server` | same | — |
-| helm_ls | `brew install helm-ls` | see releases page | `go install github.com/mrjosh/helm-ls@latest` |
-| yaml-language-server | `npm i -g yaml-language-server` | same | — |
-| typescript-language-server | `npm i -g typescript-language-server` | same | — |
-| tailwindcss-language-server | `npm i -g @tailwindcss/language-server` | same | — |
-| lua-language-server | `brew install lua-language-server` | see releases page | — |
+| Tool                        | Install (macOS/brew)                         | Install (apt)               | Install (cargo/other)                         |
+| --------------------------- | -------------------------------------------- | --------------------------- | --------------------------------------------- |
+| pyright                     | `npm i -g pyright`                           | `npm i -g pyright`          | —                                             |
+| rust-analyzer               | `brew install rust-analyzer`                 | `apt install rust-analyzer` | `rustup component add rust-analyzer`          |
+| gopls                       | `go install golang.org/x/tools/gopls@latest` | same                        | same                                          |
+| terraform-ls                | `brew install hashicorp/tap/terraform-ls`    | see releases page           | —                                             |
+| ansible-language-server     | `npm i -g @ansible/ansible-language-server`  | same                        | —                                             |
+| helm_ls                     | `brew install helm-ls`                       | see releases page           | `go install github.com/mrjosh/helm-ls@latest` |
+| yaml-language-server        | `npm i -g yaml-language-server`              | same                        | —                                             |
+| typescript-language-server  | `npm i -g typescript-language-server`        | same                        | —                                             |
+| tailwindcss-language-server | `npm i -g @tailwindcss/language-server`      | same                        | —                                             |
+| lua-language-server         | `brew install lua-language-server`           | see releases page           | —                                             |
 
 Servers resolve their project root from markers (`Cargo.toml`, `go.mod`,
 `pyproject.toml`, `.terraform`, …) and fall back to `.git`. A Rust file with no
-`Cargo.toml` above it makes rust-analyzer fail with *"Failed to discover
-workspace"* — that is the marker missing, not a config bug.
+`Cargo.toml` above it makes rust-analyzer fail with _"Failed to discover
+workspace"_ — that is the marker missing, not a config bug.
 
 `:LspInfo` does **not** exist here (it ships with `nvim-lspconfig`, which this
 distro deliberately does not use). The native equivalents:
@@ -102,16 +118,16 @@ a sibling `Chart.yaml` exists; `playbooks/*.yml` and `roles/*/tasks/*.yml` as
 
 ### Formatters
 
-| Tool | Install |
-|---|---|
-| ruff (python format+lint) | `brew install ruff` / `pip install ruff` |
-| rustfmt | `rustup component add rustfmt` |
-| gofmt | bundled with the Go distribution |
-| goimports | `go install golang.org/x/tools/cmd/goimports@latest` |
-| terraform (fmt) | `brew install terraform` |
-| yamlfmt | `brew install yamlfmt` |
-| stylua | `brew install stylua` |
-| prettier | `npm i -g prettier` |
+| Tool                      | Install                                              |
+| ------------------------- | ---------------------------------------------------- |
+| ruff (python format+lint) | `brew install ruff` / `pip install ruff`             |
+| rustfmt                   | `rustup component add rustfmt`                       |
+| gofmt                     | bundled with the Go distribution                     |
+| goimports                 | `go install golang.org/x/tools/cmd/goimports@latest` |
+| terraform (fmt)           | `brew install terraform`                             |
+| yamlfmt                   | `brew install yamlfmt`                               |
+| stylua                    | `brew install stylua`                                |
+| prettier                  | `npm i -g prettier`                                  |
 
 Format on save is on, plus `<leader>cf` on demand.
 
@@ -120,22 +136,22 @@ Format on save is on, plus `<leader>cf` on demand.
   puts it in `~/go/bin`, which is often not on `$PATH`; without
   `export PATH="$HOME/go/bin:$PATH"` Go formatting silently degrades to plain
   `gofmt` and unused imports survive.
-- **`lsp_format = "fallback"`** hands formatting to the LSP only when *no*
+- **`lsp_format = "fallback"`** hands formatting to the LSP only when _no_
   formatter is configured for the filetype — not when a configured one is
   missing from `$PATH`. Absent `stylua`, a `.lua` write reports
-  *"Formatters unavailable for lua file"* and writes cleanly; it does not fall
+  _"Formatters unavailable for lua file"_ and writes cleanly; it does not fall
   back to `lua_ls`.
 - **ruff format** never reflows comments or strings (same policy as Black).
 
 ### Linters
 
-| Tool | Install |
-|---|---|
-| ruff | `brew install ruff` / `pip install ruff` |
-| tflint | `brew install tflint` |
-| yamllint | `brew install yamllint` / `pip install yamllint` |
-| ansible-lint | `pip install ansible-lint` |
-| eslint | `npm i -g eslint` |
+| Tool         | Install                                          |
+| ------------ | ------------------------------------------------ |
+| ruff         | `brew install ruff` / `pip install ruff`         |
+| tflint       | `brew install tflint`                            |
+| yamllint     | `brew install yamllint` / `pip install yamllint` |
+| ansible-lint | `pip install ansible-lint`                       |
+| eslint       | `npm i -g eslint`                                |
 
 Linters run on read, write and leaving insert mode. A linter that is not
 installed is skipped silently.
@@ -172,25 +188,25 @@ panel). Needs Node.js, plus a one-off authentication:
 
 Leader is `<Space>`.
 
-| Keys | Action |
-|---|---|
-| `<leader>ff` | Find files |
-| `<leader>fg` | Live grep |
-| `<leader>fb` | Find buffers |
-| `<leader>fh` | Help tags |
-| `<leader>e` | Toggle file explorer |
-| `gd` / `gr` / `gI` | Goto definition/references/implementation |
-| `K` | Hover docs |
-| `<leader>rn` | Rename symbol |
-| `<leader>ca` | Code action |
-| `<leader>cf` | Format buffer |
-| `[d` / `]d` | Previous/next diagnostic |
-| `<leader>q` | Diagnostics to location list |
-| `]h` / `[h` | Next/prev git hunk |
-| `<leader>hs` / `<leader>hr` / `<leader>hp` / `<leader>hb` | Stage/reset/preview hunk, blame line |
-| `<C-h>` / `<C-j>` / `<C-k>` / `<C-l>` | Move focus between windows |
-| `<Esc>` | Clear search highlight |
-| `<C-y>` / `<C-CR>` | Accept completion (`<C-CR>` needs a terminal speaking the Kitty keyboard protocol) |
+| Keys                                                      | Action                                                                             |
+| --------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| `<leader>ff`                                              | Find files                                                                         |
+| `<leader>fg`                                              | Live grep                                                                          |
+| `<leader>fb`                                              | Find buffers                                                                       |
+| `<leader>fh`                                              | Help tags                                                                          |
+| `<leader>e`                                               | Toggle file explorer                                                               |
+| `gd` / `gr` / `gI`                                        | Goto definition/references/implementation                                          |
+| `K`                                                       | Hover docs                                                                         |
+| `<leader>rn`                                              | Rename symbol                                                                      |
+| `<leader>ca`                                              | Code action                                                                        |
+| `<leader>cf`                                              | Format buffer                                                                      |
+| `[d` / `]d`                                               | Previous/next diagnostic                                                           |
+| `<leader>q`                                               | Diagnostics to location list                                                       |
+| `]h` / `[h`                                               | Next/prev git hunk                                                                 |
+| `<leader>hs` / `<leader>hr` / `<leader>hp` / `<leader>hb` | Stage/reset/preview hunk, blame line                                               |
+| `<C-h>` / `<C-j>` / `<C-k>` / `<C-l>`                     | Move focus between windows                                                         |
+| `<Esc>`                                                   | Clear search highlight                                                             |
+| `<C-y>` / `<C-CR>`                                        | Accept completion (`<C-CR>` needs a terminal speaking the Kitty keyboard protocol) |
 
 Diagnostics render as gutter signs everywhere plus the full text underneath the
 cursor's line only (native `virtual_lines`), which avoids the horizontal
