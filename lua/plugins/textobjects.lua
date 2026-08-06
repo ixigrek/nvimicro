@@ -23,8 +23,9 @@ return {
     local select = require("nvim-treesitter-textobjects.select")
     local move = require("nvim-treesitter-textobjects.move")
 
-    -- af/if would collide with the built-in "a word"/"inner word" family only
-    -- in operator/visual mode, which is exactly where they are wanted.
+    -- New keys: Vim's built-in "a word"/"inner word" family is aw/iw, not
+    -- af/if, so there is no built-in to collide with. Bound in x/o only,
+    -- which is where a textobject selection is used.
     local objects = {
       ["af"] = "@function.outer",
       ["if"] = "@function.inner",
@@ -39,11 +40,16 @@ return {
       end, { desc = "Select " .. query })
     end
 
-    -- ]f/[f mirror the ]h/[h hunk motions already bound in git.lua.
-    vim.keymap.set({ "n", "x", "o" }, "]f", function()
+    -- ]m/[m replace Vim's built-in next/prev "start of method" motions
+    -- (brace-heuristic based) with the treesitter equivalent -- a strict
+    -- improvement to the same tool. NOT ]f/[f: those are Vim's built-in
+    -- "same as gf" motions (jump to the file under the cursor), a distinct
+    -- and still-useful capability in a Lua config full of require(...)
+    -- calls, so they stay untouched.
+    vim.keymap.set({ "n", "x", "o" }, "]m", function()
       move.goto_next_start("@function.outer", "textobjects")
     end, { desc = "Next function start" })
-    vim.keymap.set({ "n", "x", "o" }, "[f", function()
+    vim.keymap.set({ "n", "x", "o" }, "[m", function()
       move.goto_previous_start("@function.outer", "textobjects")
     end, { desc = "Prev function start" })
     -- NOT ]c/[c: those are Vim's built-in diff-mode next/prev change motions

@@ -237,7 +237,7 @@ Leader is `<Space>`.
 | `af` / `if`                                               | Select a/inner function (operator + visual mode)                                   |
 | `ac` / `ic`                                               | Select a/inner class                                                               |
 | `aa` / `ia`                                               | Select a/inner parameter                                                           |
-| `]f` / `[f`                                               | Next/prev function start                                                           |
+| `]m` / `[m`                                               | Next/prev function start                                                           |
 | `]]` / `[[`                                               | Next/prev class start                                                              |
 
 Format-on-save is on by default. `:FormatDisable` turns it off for the current
