@@ -22,5 +22,18 @@ return {
         lint.try_lint()
       end,
     })
+
+    -- The BufReadPost that lazy-loads this plugin has already fired by the time
+    -- the autocmd above exists, so the very first buffer opened would never be
+    -- linted. Catch up on every buffer already listed.
+    vim.schedule(function()
+      for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+        if vim.api.nvim_buf_is_loaded(buf) and vim.bo[buf].buflisted then
+          vim.api.nvim_buf_call(buf, function()
+            lint.try_lint()
+          end)
+        end
+      end
+    end)
   end,
 }
