@@ -13,6 +13,13 @@ vim.api.nvim_create_autocmd("LspAttach", {
     map("K", vim.lsp.buf.hover, "Hover Documentation")
     map("<leader>rn", vim.lsp.buf.rename, "Rename")
     map("<leader>ca", vim.lsp.buf.code_action, "Code Action")
+    -- Neovim 0.11 already binds grn/gra/grr/gri/grt/gO and insert-mode <C-s>.
+    -- These two have no native default.
+    map("gD", vim.lsp.buf.declaration, "Goto Declaration")
+    map("<leader>th", function()
+      local enabled = vim.lsp.inlay_hint.is_enabled({ bufnr = ev.buf })
+      vim.lsp.inlay_hint.enable(not enabled, { bufnr = ev.buf })
+    end, "Toggle Inlay Hints")
   end,
 })
 
