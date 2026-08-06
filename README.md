@@ -57,10 +57,11 @@ This distro does **not** install LSP servers, formatters, or linters for you
 :checkhealth nvimicro
 ```
 
-Lists every tool in the tables below and whether it is on your `$PATH`. Missing
-tools are reported as info, not as errors — the feature that needs them is
-simply off. Since nothing here warns you at runtime, this is the only place that
-absence is visible.
+Lists most tools in the tables below and whether it is on your `$PATH`
+(bundled tools such as `gofmt` are skipped) — missing ones are reported as
+info, not as errors, since the feature that needs them is simply off. Since
+nothing here warns you at runtime, this is the only place that absence is
+visible.
 
 ### Treesitter
 
