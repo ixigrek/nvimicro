@@ -79,6 +79,11 @@ function M.check()
   end
 
   local missing = 0
+  -- ruff is deliberately listed in both the Formatters and Linters groups
+  -- (see the comment above) and each listing gets its own display line, but
+  -- the summary counts *distinct* missing binaries, not missing listings --
+  -- otherwise a single absent ruff would count as 2 toward the total.
+  local counted = {}
   for _, group in ipairs(groups) do
     vim.health.start("nvimicro: " .. group.name)
     for _, tool in ipairs(group.tools) do
@@ -96,7 +101,10 @@ function M.check()
         if found then
           vim.health.ok(tool.label .. " (" .. found .. ") -- " .. tool.why)
         else
-          missing = missing + 1
+          if not counted[tool.label] then
+            counted[tool.label] = true
+            missing = missing + 1
+          end
           -- info, not warn: an absent tool is an ordinary state in this distro.
           vim.health.info(
             tool.label
@@ -110,7 +118,10 @@ function M.check()
       elseif vim.fn.executable(tool.bin) == 1 then
         vim.health.ok(tool.bin .. " -- " .. tool.why)
       else
-        missing = missing + 1
+        if not counted[tool.bin] then
+          counted[tool.bin] = true
+          missing = missing + 1
+        end
         -- info, not warn: an absent tool is an ordinary state in this distro.
         vim.health.info(tool.bin .. " not on $PATH -- " .. tool.why .. " is disabled")
       end
@@ -122,7 +133,9 @@ function M.check()
     vim.health.ok("every documented tool is on $PATH")
   else
     vim.health.info(
-      missing .. " tool(s) missing. This is not an error: the features that need "
+      missing
+        .. (missing == 1 and " tool" or " tools")
+        .. " missing. This is not an error: the features that need "
         .. "them stay off. Install commands are in the README."
     )
   end
