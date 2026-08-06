@@ -28,7 +28,10 @@ return {
         "html", "css",
       },
       callback = function()
-        vim.treesitter.start()
+        local ok = pcall(vim.treesitter.start)
+        if not ok then
+          return
+        end
         vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
       end,
     })
