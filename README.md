@@ -253,9 +253,11 @@ overflow `virtual_text` hits when one line carries several diagnostics.
 before a config change keeps the old rendering until you restart.
 
 Textobjects come from `nvim-treesitter-textobjects` (`main` branch, matching
-`nvim-treesitter`) and need the relevant parser compiled — a filetype whose
-parser is still building falls back to Vim's built-in `af`/`if`, which do
-nothing useful. Give a cold first launch a moment.
+`nvim-treesitter`) and need the relevant parser compiled. Without one, `af`/
+`if`/`ac`/`ic`/`aa`/`ia` silently select nothing — a clean no-op, since they
+have no built-in equivalent to fall back to. `]m`/`[m`/`]]`/`[[` do have
+built-ins (Vim's own method/section motions) and fall through to those
+instead. Give a cold first launch a moment for parsers to finish compiling.
 
 ## Performance
 
