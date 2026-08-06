@@ -77,12 +77,25 @@ vim.lsp.config("yamlls", {
       -- schemastore.org's catalog has no generic Kubernetes core-resources schema and no
       -- Helm values.yaml schema, and its "Argo CD" entry has no fileMatch (so selecting it
       -- is inert). Using the real, functional Helm entries instead.
-      schemas = require("schemastore").yaml.schemas({
-        select = {
-          "Helm Chart.yaml",
-          "Helm Chart.lock",
-        },
-      }),
+      -- yaml-language-server's special "kubernetes" schema key enables its bundled
+      -- Kubernetes schema for matching files. kubernetesCRDStoreEnabled defaults to
+      -- true (kubernetesCRDStoreUrl defaults to the datreeio/CRDs-catalog), so once a
+      -- file matches this glob and declares apiVersion/kind, ArgoCD's Application CRD
+      -- (and other CRDs) are looked up automatically — no manual ArgoCD fileMatch/URL
+      -- needed. Scoped to k8s/ and manifests/ directory conventions deliberately, since
+      -- there's no unique filename for raw k8s manifests (unlike Helm's Chart.yaml) and
+      -- a bare **/*.yaml glob would false-positive on unrelated YAML.
+      schemas = vim.tbl_extend("force",
+        require("schemastore").yaml.schemas({
+          select = {
+            "Helm Chart.yaml",
+            "Helm Chart.lock",
+          },
+        }),
+        {
+          kubernetes = { "**/k8s/**/*.yaml", "**/k8s/**/*.yml", "**/manifests/**/*.yaml", "**/manifests/**/*.yml" },
+        }
+      ),
     },
   },
 })
