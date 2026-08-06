@@ -215,9 +215,10 @@ Leader is `<Space>`.
 | `<C-y>` / `<C-CR>`                                        | Accept completion (`<C-CR>` needs a terminal speaking the Kitty keyboard protocol) |
 
 Format-on-save is on by default. `:FormatDisable` turns it off for the current
-buffer, `:FormatDisable!` for the whole session, `:FormatEnable` restores both.
-Neovim 0.11 already binds `grn`, `gra`, `grr`, `gri`, `grt`, `gO` and insert-mode
-`<C-s>`; the mappings above are additions, not replacements.
+buffer, `:FormatDisable!` for the whole session, `:FormatEnable` restores both
+scopes for the current buffer. Neovim 0.11 already binds `grn`, `gra`, `grr`,
+`gri`, `grt`, `gO` and insert-mode `<C-s>`; the LSP mappings above are
+additions to those built-ins, not replacements.
 
 Diagnostics render as gutter signs everywhere plus the full text underneath the
 cursor's line only (native `virtual_lines`), which avoids the horizontal
