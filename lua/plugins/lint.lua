@@ -73,18 +73,26 @@ return {
     vim.api.nvim_create_autocmd({ "BufWritePost", "BufReadPost", "InsertLeave" }, {
       group = vim.api.nvim_create_augroup("nvimicro_lint", { clear = true }),
       callback = function()
-        lint.try_lint()
+        -- A linter absent from $PATH raises ENOENT out of try_lint. This distro
+        -- installs no binaries, so that is an ordinary state: skip quietly
+        -- rather than throw a traceback on every write.
+        pcall(lint.try_lint, nil, { ignore_errors = true })
       end,
     })
 
     -- The BufReadPost that lazy-loads this plugin has already fired by the time
     -- the autocmd above exists, so the very first buffer opened would never be
     -- linted. Catch up on every buffer already listed.
+    --
+    -- pcall because a linter binary that is not installed raises ENOENT out of
+    -- try_lint, and this distro installs no binaries of its own -- an absent
+    -- linter is an ordinary state, not an error, and must not abort the loop
+    -- for every other buffer.
     vim.schedule(function()
       for _, buf in ipairs(vim.api.nvim_list_bufs()) do
         if vim.api.nvim_buf_is_loaded(buf) and vim.bo[buf].buflisted then
-          vim.api.nvim_buf_call(buf, function()
-            lint.try_lint()
+          pcall(vim.api.nvim_buf_call, buf, function()
+            lint.try_lint(nil, { ignore_errors = true })
           end)
         end
       end
