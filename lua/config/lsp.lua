@@ -159,7 +159,38 @@ vim.lsp.config("lua_ls", {
   },
 })
 
+vim.lsp.config("bashls", {
+  cmd = { "bash-language-server", "start" },
+  filetypes = { "sh", "bash" },
+  root_markers = { ".git" },
+  capabilities = capabilities,
+})
+
+vim.lsp.config("dockerls", {
+  cmd = { "docker-langserver", "--stdio" },
+  filetypes = { "dockerfile" },
+  root_markers = { "Dockerfile", ".git" },
+  capabilities = capabilities,
+})
+
+-- schemastore.nvim was already a dependency, used for YAML only. json.schemas()
+-- returns a list of {name, fileMatch, url} entries, which is the shape jsonls
+-- wants -- unlike yaml.schemas(), which returns a url = fileMatch map.
+vim.lsp.config("jsonls", {
+  cmd = { "vscode-json-language-server", "--stdio" },
+  filetypes = { "json", "jsonc" },
+  root_markers = { ".git" },
+  capabilities = capabilities,
+  settings = {
+    json = {
+      schemas = require("schemastore").json.schemas(),
+      validate = { enable = true },
+    },
+  },
+})
+
 vim.lsp.enable({
   "pyright", "rust_analyzer", "gopls", "terraform_ls", "ansiblels",
   "helm_ls", "yamlls", "ts_ls", "tailwindcss", "lua_ls",
+  "bashls", "dockerls", "jsonls",
 })
