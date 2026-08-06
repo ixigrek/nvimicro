@@ -39,6 +39,10 @@ Interactive checks: `NVIM_APPNAME=nvimicro nvim -u init.lua`, then `:Lazy profil
 does not exist here — it ships with nvim-lspconfig, which this distro
 deliberately does not use.
 
+`:checkhealth nvimicro` (from `lua/nvimicro/health.lua`) reports which of the
+documented external binaries are on `$PATH`. Its tool list mirrors the README
+tables — when you add a server, formatter or linter, add it there too.
+
 ## Architecture
 
 `init.lua` prepends its own directory to the runtimepath (so `nvim -u
