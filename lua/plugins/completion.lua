@@ -3,6 +3,7 @@ return {
   "saghen/blink.cmp",
   event = "InsertEnter",
   version = "*",
+  dependencies = { "zbirenbaum/copilot.lua", "giuxtaposition/blink-cmp-copilot" },
   opts = {
     keymap = { preset = "default" },
     appearance = { nerd_font_variant = "mono" },
@@ -10,7 +11,17 @@ return {
       documentation = { auto_show = true, auto_show_delay_ms = 200 },
     },
     sources = {
-      default = { "lsp", "path", "snippets", "buffer" },
+      default = { "lsp", "path", "snippets", "buffer", "copilot" },
+      providers = {
+        copilot = {
+          name = "copilot",
+          -- giuxtaposition/blink-cmp-copilot exposes lua/blink-cmp-copilot;
+          -- "blink-copilot" is a different plugin (fang2hou) and fails to load
+          module = "blink-cmp-copilot",
+          score_offset = 100,
+          async = true,
+        },
+      },
     },
   },
   opts_extend = { "sources.default" },
