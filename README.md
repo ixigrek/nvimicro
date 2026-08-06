@@ -194,8 +194,14 @@ Leader is `<Space>`.
 | `<leader>fg`                                              | Live grep                                                                          |
 | `<leader>fb`                                              | Find buffers                                                                       |
 | `<leader>fh`                                              | Help tags                                                                          |
+| `<leader>fo` / `<leader>fr`                               | Recent files / resume last picker                                                  |
+| `<leader>fs` / `<leader>fS`                               | Document / workspace symbols                                                       |
+| `<leader>fd` / `<leader>fD`                               | Buffer / workspace diagnostics                                                     |
+| `<leader>gs` / `<leader>gc`                               | Git status / git commits                                                           |
 | `<leader>e`                                               | Toggle file explorer                                                               |
 | `gd` / `gr` / `gI`                                        | Goto definition/references/implementation                                          |
+| `gD`                                                      | Goto declaration                                                                   |
+| `<leader>th`                                              | Toggle inlay hints                                                                 |
 | `K`                                                       | Hover docs                                                                         |
 | `<leader>rn`                                              | Rename symbol                                                                      |
 | `<leader>ca`                                              | Code action                                                                        |
@@ -207,6 +213,11 @@ Leader is `<Space>`.
 | `<C-h>` / `<C-j>` / `<C-k>` / `<C-l>`                     | Move focus between windows                                                         |
 | `<Esc>`                                                   | Clear search highlight                                                             |
 | `<C-y>` / `<C-CR>`                                        | Accept completion (`<C-CR>` needs a terminal speaking the Kitty keyboard protocol) |
+
+Format-on-save is on by default. `:FormatDisable` turns it off for the current
+buffer, `:FormatDisable!` for the whole session, `:FormatEnable` restores both.
+Neovim 0.11 already binds `grn`, `gra`, `grr`, `gri`, `grt`, `gO` and insert-mode
+`<C-s>`; the mappings above are additions, not replacements.
 
 Diagnostics render as gutter signs everywhere plus the full text underneath the
 cursor's line only (native `virtual_lines`), which avoids the horizontal
