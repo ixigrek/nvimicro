@@ -16,6 +16,8 @@
 - Startup budget: < 50ms measured via `:Lazy profile`; nothing loads at boot except colorscheme + mini.statusline + treesitter core.
 - LSP servers, formatters, linters are installed manually by the user via brew/apt/cargo — not automated by Neovim. This plan documents exact binary names in a README but does not install them.
 - Every plugin file lives under `lua/plugins/<name>.lua`, one plugin (or tightly-coupled pair) per file.
+- All invocations (testing and real use) MUST set `NVIM_APPNAME=nvimicro` so this config's plugin/state/cache dirs (`~/.local/share/nvimicro`, `~/.local/state/nvimicro`, `~/.local/cache/nvimicro`) are fully isolated from the user's personal Neovim setup (`~/.local/share/nvim`). Without this, `stdpath('data')` resolves to the shared personal data dir regardless of the `-u init.lua` flag, causing plugin-version collisions with any pre-existing personal config (confirmed: caused a real `nvim-treesitter` branch/API mismatch during Task 2 testing).
+- `tree-sitter-cli` is a required external dependency (separate from a C compiler) for `nvim-treesitter`'s `main` branch to compile parsers — install via `brew install tree-sitter-cli` (NOT the plain `tree-sitter` formula, which is library-only). Document in Task 12's README.
 
 ---
 
@@ -169,12 +171,12 @@ Note: `require("config.lsp")` is called here but the file doesn't exist yet — 
 
 - [ ] **Step 5: Verify startup has no errors**
 
-Run: `nvim --headless -u init.lua -c "qa" 2>&1; echo "EXIT:$?"`
+Run: `NVIM_APPNAME=nvimicro nvim --headless -u init.lua -c "qa" 2>&1; echo "EXIT:$?"`
 Expected: no Lua error output, ends with `EXIT:0`
 
 - [ ] **Step 6: Verify colorscheme applied and leader key set**
 
-Run: `nvim --headless -u init.lua -c "lua print('leader='..vim.g.mapleader..' colors='..vim.g.colors_name)" -c "qa" 2>&1`
+Run: `NVIM_APPNAME=nvimicro nvim --headless -u init.lua -c "lua print('leader='..vim.g.mapleader..' colors='..vim.g.colors_name)" -c "qa" 2>&1`
 Expected: output contains `leader=  colors=habamax` (leader is a literal space)
 
 - [ ] **Step 7: Commit**
@@ -225,7 +227,7 @@ return {
 
 - [ ] **Step 2: Verify plugin loads and configures without error**
 
-Run: `nvim --headless -u init.lua -c "lua require('lazy').load({plugins={'nvim-treesitter'}})" -c "lua print('TS_OK')" -c "qa" 2>&1`
+Run: `NVIM_APPNAME=nvimicro nvim --headless -u init.lua -c "lua require('lazy').load({plugins={'nvim-treesitter'}})" -c "lua print('TS_OK')" -c "qa" 2>&1`
 Expected: output contains `TS_OK`, no error output
 
 - [ ] **Step 3: Commit**
@@ -270,7 +272,7 @@ return {
 
 - [ ] **Step 2: Verify plugin loads and `get_lsp_capabilities` is callable**
 
-Run: `nvim --headless -u init.lua -c "lua require('lazy').load({plugins={'blink.cmp'}})" -c "lua local caps = require('blink.cmp').get_lsp_capabilities(); print('CAPS_OK='..tostring(type(caps)=='table'))" -c "qa" 2>&1`
+Run: `NVIM_APPNAME=nvimicro nvim --headless -u init.lua -c "lua require('lazy').load({plugins={'blink.cmp'}})" -c "lua local caps = require('blink.cmp').get_lsp_capabilities(); print('CAPS_OK='..tostring(type(caps)=='table'))" -c "qa" 2>&1`
 Expected: output contains `CAPS_OK=true`
 
 - [ ] **Step 3: Commit**
@@ -426,12 +428,12 @@ vim.lsp.enable({
 
 - [ ] **Step 3: Verify config loads without error and servers are registered**
 
-Run: `nvim --headless -u init.lua -c "lua print('PYRIGHT='..tostring(vim.lsp.config.pyright ~= nil)..' YAMLLS='..tostring(vim.lsp.config.yamlls ~= nil))" -c "qa" 2>&1`
+Run: `NVIM_APPNAME=nvimicro nvim --headless -u init.lua -c "lua print('PYRIGHT='..tostring(vim.lsp.config.pyright ~= nil)..' YAMLLS='..tostring(vim.lsp.config.yamlls ~= nil))" -c "qa" 2>&1`
 Expected: output contains `PYRIGHT=true YAMLLS=true`, no Lua errors
 
 - [ ] **Step 4: Verify yaml.ansible ftdetect + ansiblels filetype match**
 
-Run: `mkdir -p /tmp/nvimicro-test/playbooks && echo "- hosts: all" > /tmp/nvimicro-test/playbooks/site.yml && nvim --headless -u init.lua -c "e /tmp/nvimicro-test/playbooks/site.yml" -c "lua print('FT='..vim.bo.filetype)" -c "qa" 2>&1`
+Run: `mkdir -p /tmp/nvimicro-test/playbooks && echo "- hosts: all" > /tmp/nvimicro-test/playbooks/site.yml && NVIM_APPNAME=nvimicro nvim --headless -u init.lua -c "e /tmp/nvimicro-test/playbooks/site.yml" -c "lua print('FT='..vim.bo.filetype)" -c "qa" 2>&1`
 Expected: output contains `FT=yaml.ansible`
 
 - [ ] **Step 5: Commit**
@@ -471,7 +473,7 @@ return {
 
 - [ ] **Step 2: Verify plugin loads without error**
 
-Run: `nvim --headless -u init.lua -c "lua require('lazy').load({plugins={'fzf-lua'}})" -c "lua print('FZF_OK')" -c "qa" 2>&1`
+Run: `NVIM_APPNAME=nvimicro nvim --headless -u init.lua -c "lua require('lazy').load({plugins={'fzf-lua'}})" -c "lua print('FZF_OK')" -c "qa" 2>&1`
 Expected: output contains `FZF_OK`
 
 - [ ] **Step 3: Commit**
@@ -519,7 +521,7 @@ return {
 
 - [ ] **Step 2: Verify plugin loads without error**
 
-Run: `nvim --headless -u init.lua -c "lua require('lazy').load({plugins={'neo-tree.nvim'}})" -c "lua print('NEOTREE_OK')" -c "qa" 2>&1`
+Run: `NVIM_APPNAME=nvimicro nvim --headless -u init.lua -c "lua require('lazy').load({plugins={'neo-tree.nvim'}})" -c "lua print('NEOTREE_OK')" -c "qa" 2>&1`
 Expected: output contains `NEOTREE_OK`
 
 - [ ] **Step 3: Commit**
@@ -556,7 +558,7 @@ return {
 
 - [ ] **Step 2: Verify plugin loads without error**
 
-Run: `nvim --headless -u init.lua -c "lua require('lazy').load({plugins={'mini.statusline'}})" -c "lua print('STATUSLINE_OK')" -c "qa" 2>&1`
+Run: `NVIM_APPNAME=nvimicro nvim --headless -u init.lua -c "lua require('lazy').load({plugins={'mini.statusline'}})" -c "lua print('STATUSLINE_OK')" -c "qa" 2>&1`
 Expected: output contains `STATUSLINE_OK`
 
 - [ ] **Step 3: Commit**
@@ -603,7 +605,7 @@ return {
 
 - [ ] **Step 2: Verify plugin loads without error**
 
-Run: `nvim --headless -u init.lua -c "lua require('lazy').load({plugins={'gitsigns.nvim'}})" -c "lua print('GITSIGNS_OK')" -c "qa" 2>&1`
+Run: `NVIM_APPNAME=nvimicro nvim --headless -u init.lua -c "lua require('lazy').load({plugins={'gitsigns.nvim'}})" -c "lua print('GITSIGNS_OK')" -c "qa" 2>&1`
 Expected: output contains `GITSIGNS_OK`
 
 - [ ] **Step 3: Commit**
@@ -667,7 +669,7 @@ return {
 
 - [ ] **Step 2: Verify plugin loads without error**
 
-Run: `nvim --headless -u init.lua -c "lua require('lazy').load({plugins={'conform.nvim'}})" -c "lua print('CONFORM_OK')" -c "qa" 2>&1`
+Run: `NVIM_APPNAME=nvimicro nvim --headless -u init.lua -c "lua require('lazy').load({plugins={'conform.nvim'}})" -c "lua print('CONFORM_OK')" -c "qa" 2>&1`
 Expected: output contains `CONFORM_OK`
 
 - [ ] **Step 3: Commit**
@@ -721,7 +723,7 @@ return {
 
 - [ ] **Step 2: Verify plugin loads without error**
 
-Run: `nvim --headless -u init.lua -c "lua require('lazy').load({plugins={'nvim-lint'}})" -c "lua print('LINT_OK')" -c "qa" 2>&1`
+Run: `NVIM_APPNAME=nvimicro nvim --headless -u init.lua -c "lua require('lazy').load({plugins={'nvim-lint'}})" -c "lua print('LINT_OK')" -c "qa" 2>&1`
 Expected: output contains `LINT_OK`
 
 - [ ] **Step 3: Commit**
@@ -823,7 +825,7 @@ return {
 
 - [ ] **Step 3: Verify both plugins load without error**
 
-Run: `nvim --headless -u init.lua -c "lua require('lazy').load({plugins={'copilot.lua','blink-cmp-copilot','blink.cmp'}})" -c "lua print('AI_OK')" -c "qa" 2>&1`
+Run: `NVIM_APPNAME=nvimicro nvim --headless -u init.lua -c "lua require('lazy').load({plugins={'copilot.lua','blink-cmp-copilot','blink.cmp'}})" -c "lua print('AI_OK')" -c "qa" 2>&1`
 Expected: output contains `AI_OK`
 
 - [ ] **Step 4: Commit**
@@ -841,7 +843,7 @@ git commit -m "feat: add copilot.lua completion source to blink.cmp"
 - Create: `README.md`
 
 **Interfaces:**
-- Consumes: exact binary/package names from Tasks 4, 9, 10
+- Consumes: exact binary/package names from Tasks 2 (tree-sitter-cli), 4, 9, 10
 - Produces: nothing (documentation leaf)
 
 - [ ] **Step 1: Create `README.md`**
@@ -852,10 +854,31 @@ git commit -m "feat: add copilot.lua completion source to blink.cmp"
 Ultra-light Neovim distro for DevOps/SRE (Python, Rust, Go, Terraform, Ansible,
 Helm, ArgoCD, YAML) + web development. Requires Neovim 0.11+.
 
+## Running nvimicro
+
+Always set `NVIM_APPNAME=nvimicro` so this config's plugins/state/cache are
+fully isolated from your personal Neovim setup — otherwise `stdpath('data')`
+resolves to your regular `~/.local/share/nvim`, and any plugin already
+installed there for a different config can collide with this one (wrong
+branch, wrong version, confusing errors).
+
+```bash
+NVIM_APPNAME=nvimicro nvim -u init.lua
+```
+
+Alias this in your shell for convenience, e.g. `alias nvimicro='NVIM_APPNAME=nvimicro nvim -u /path/to/nvimicro/init.lua'`.
+
 ## Prerequisites
 
 This distro does **not** install LSP servers, formatters, or linters for you
 (no mason.nvim). Install these via your system package manager before use.
+
+### Treesitter
+
+| Tool | Install (macOS/brew) | Install (apt) |
+|---|---|---|
+| tree-sitter CLI | `brew install tree-sitter-cli` (NOT the plain `tree-sitter` formula — that one is library-only) | see https://github.com/tree-sitter/tree-sitter/releases |
+| C compiler | usually preinstalled (Xcode CLT / build-essential) | `apt install build-essential` |
 
 ### LSP servers
 
@@ -937,7 +960,7 @@ git commit -m "docs: add README with manual binary install instructions"
 
 ## Final Verification (after all tasks)
 
-- [ ] Run `nvim --headless -u init.lua -c "Lazy! sync" -c "qa"` to install all plugins fresh
-- [ ] Run `nvim -u init.lua` interactively, open a `.tf`, a `.yaml` under `templates/` in a chart with `Chart.yaml`, a `.py`, a `.go`, and a `playbooks/*.yml` file; for each confirm `:LspInfo` shows an attached client matching the table in Task 4
+- [ ] Run `NVIM_APPNAME=nvimicro nvim --headless -u init.lua -c "Lazy! sync" -c "qa"` to install all plugins fresh
+- [ ] Run `NVIM_APPNAME=nvimicro nvim -u init.lua` interactively, open a `.tf`, a `.yaml` under `templates/` in a chart with `Chart.yaml`, a `.py`, a `.go`, and a `playbooks/*.yml` file; for each confirm `:LspInfo` shows an attached client matching the table in Task 4
 - [ ] Run `:Lazy profile` and confirm total startup time is under 50ms
 - [ ] Run `:checkhealth` and confirm no errors under `lazy`, `treesitter`, `blink.cmp` sections (missing external binaries are expected and fine — those come from README prerequisites)
