@@ -16,9 +16,23 @@ vim.api.nvim_create_autocmd("LspAttach", {
   end,
 })
 
+-- Signs in the gutter everywhere; the full text of every diagnostic on a line
+-- is rendered underneath it, but only for the line the cursor is on. Native
+-- virtual_lines (Neovim 0.11+) avoids the horizontal overflow virtual_text hits
+-- when a single line carries several diagnostics.
 vim.diagnostic.config({
-  virtual_text = { spacing = 4 },
+  virtual_text = false,
+  virtual_lines = { current_line = true },
   severity_sort = true,
+  underline = true,
+  signs = {
+    text = {
+      [vim.diagnostic.severity.ERROR] = "E",
+      [vim.diagnostic.severity.WARN] = "W",
+      [vim.diagnostic.severity.INFO] = "I",
+      [vim.diagnostic.severity.HINT] = "H",
+    },
+  },
 })
 
 vim.lsp.config("pyright", {
