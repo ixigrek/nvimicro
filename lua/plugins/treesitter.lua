@@ -16,6 +16,11 @@ return {
     }
     require("nvim-treesitter").install(ensure_installed)
 
+    -- jsonc (tsconfig.json, .eslintrc.json, ...) is JSON-with-comments; the
+    -- json grammar parses it fine, so reuse the compiled json parser instead
+    -- of pulling in a separate one.
+    vim.treesitter.language.register("json", "jsonc")
+
     vim.api.nvim_create_autocmd("FileType", {
       pattern = {
         "lua", "vim", "help",
@@ -23,7 +28,7 @@ return {
         "terraform", "terraform-vars", "hcl",
         "yaml", "yaml.ansible", "helm",
         "dockerfile", "sh", "bash",
-        "json", "toml", "markdown",
+        "json", "jsonc", "toml", "markdown",
         "javascript", "javascriptreact", "typescript", "typescriptreact",
         "html", "css",
       },
