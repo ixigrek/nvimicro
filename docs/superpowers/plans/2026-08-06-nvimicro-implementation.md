@@ -961,6 +961,6 @@ git commit -m "docs: add README with manual binary install instructions"
 ## Final Verification (after all tasks)
 
 - [ ] Run `NVIM_APPNAME=nvimicro nvim --headless -u init.lua -c "Lazy! sync" -c "qa"` to install all plugins fresh
-- [ ] Run `NVIM_APPNAME=nvimicro nvim -u init.lua` interactively, open a `.tf`, a `.yaml` under `templates/` in a chart with `Chart.yaml`, a `.py`, a `.go`, and a `playbooks/*.yml` file; for each confirm `:LspInfo` shows an attached client matching the table in Task 4
+- [ ] Run `NVIM_APPNAME=nvimicro nvim -u init.lua` interactively, open a `.tf`, a `.yaml` under `templates/` in a chart with `Chart.yaml`, a `.py`, a `.go`, and a `playbooks/*.yml` file; for each confirm `:checkhealth vim.lsp` shows an attached client matching the table in Task 4 (note: `:LspInfo` does not exist — it ships with nvim-lspconfig, which this distro deliberately does not use; the native equivalents are `:checkhealth vim.lsp` and `:lua =vim.lsp.get_clients({bufnr=0})`). Rust fixtures need a `Cargo.toml` and Go fixtures a `go.mod`, otherwise `root_markers` falls back to `.git` and the server fails to discover a workspace
 - [ ] Run `:Lazy profile` and confirm total startup time is under 50ms
 - [ ] Run `:checkhealth` and confirm no errors under `lazy`, `treesitter`, `blink.cmp` sections (missing external binaries are expected and fine — those come from README prerequisites)
