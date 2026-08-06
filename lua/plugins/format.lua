@@ -18,7 +18,10 @@ return {
     formatters_by_ft = {
       python = { "ruff_format" },
       rust = { "rustfmt" },
-      go = { "gofmt", "goimports" },
+      -- goimports is gofmt plus import fixing, so running both is redundant.
+      -- gofmt stays as a fallback only: it ships with the Go distribution and
+      -- is always present, whereas goimports has to be installed separately.
+      go = { "goimports", "gofmt", stop_after_first = true },
       terraform = { "terraform_fmt" },
       ["terraform-vars"] = { "terraform_fmt" },
       yaml = { "yamlfmt" },
