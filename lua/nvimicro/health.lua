@@ -12,6 +12,14 @@ local groups = {
     name = "Treesitter",
     tools = {
       { bin = "tree-sitter", why = "compiles parsers (nvim-treesitter main branch)" },
+      -- Both the CLI and a compiler are required (README: "Both are required") --
+      -- main branch compiles every parser locally, so a missing compiler passes
+      -- silently until an async parser build fails with nothing pointing back here.
+      {
+        label = "C compiler",
+        any_of = { "cc", "gcc", "clang" },
+        why = "compiles parsers locally (nvim-treesitter main branch)",
+      },
     },
   },
   {
@@ -35,7 +43,7 @@ local groups = {
   {
     name = "Formatters",
     tools = {
-      { bin = "ruff", why = "python (format + lint)" },
+      { bin = "ruff", why = "python formatting (ruff format)" },
       { bin = "rustfmt", why = "rust" },
       { bin = "goimports", why = "go (gofmt fallback is bundled with Go)" },
       { bin = "terraform", why = "terraform fmt" },
@@ -48,6 +56,10 @@ local groups = {
   {
     name = "Linters",
     tools = {
+      -- ruff is dual-purpose (README lists it in both the Formatters and Linters
+      -- tables): counted here too, so it is deliberately checked -- and counted
+      -- toward "missing" -- twice, once per role.
+      { bin = "ruff", why = "python linting (ruff check)" },
       { bin = "tflint", why = "terraform" },
       { bin = "yamllint", why = "yaml" },
       { bin = "ansible-lint", why = "yaml.ansible" },
@@ -70,7 +82,32 @@ function M.check()
   for _, group in ipairs(groups) do
     vim.health.start("nvimicro: " .. group.name)
     for _, tool in ipairs(group.tools) do
-      if vim.fn.executable(tool.bin) == 1 then
+      if tool.any_of then
+        -- Satisfied by any one of several candidate binaries (e.g. cc/gcc/clang):
+        -- one bin field can't express that, so this is a small, separate shape
+        -- handled alongside the single-bin case rather than folded into it.
+        local found
+        for _, candidate in ipairs(tool.any_of) do
+          if vim.fn.executable(candidate) == 1 then
+            found = candidate
+            break
+          end
+        end
+        if found then
+          vim.health.ok(tool.label .. " (" .. found .. ") -- " .. tool.why)
+        else
+          missing = missing + 1
+          -- info, not warn: an absent tool is an ordinary state in this distro.
+          vim.health.info(
+            tool.label
+              .. " not on $PATH (checked "
+              .. table.concat(tool.any_of, ", ")
+              .. ") -- "
+              .. tool.why
+              .. " is disabled"
+          )
+        end
+      elseif vim.fn.executable(tool.bin) == 1 then
         vim.health.ok(tool.bin .. " -- " .. tool.why)
       else
         missing = missing + 1
