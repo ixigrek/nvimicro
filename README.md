@@ -77,6 +77,9 @@ regular `syntax` until the parser finishes building, then picks it up.
 | typescript-language-server  | `npm i -g typescript-language-server`        | same                        | —                                             |
 | tailwindcss-language-server | `npm i -g @tailwindcss/language-server`      | same                        | —                                             |
 | lua-language-server         | `brew install lua-language-server`           | see releases page           | —                                             |
+| bash-language-server        | `brew install bash-language-server`          | `npm i -g bash-language-server` | —                                             |
+| dockerfile-language-server  | `npm i -g dockerfile-language-server-nodejs` | same                        | —                                             |
+| vscode-json-language-server | `npm i -g vscode-langservers-extracted`      | same                        | —                                             |
 
 Servers resolve their project root from markers (`Cargo.toml`, `go.mod`,
 `pyproject.toml`, `.terraform`, …) and fall back to `.git`. A Rust file with no
@@ -128,6 +131,7 @@ a sibling `Chart.yaml` exists; `playbooks/*.yml` and `roles/*/tasks/*.yml` as
 | yamlfmt                   | `brew install yamlfmt`                               |
 | stylua                    | `brew install stylua`                                |
 | prettier                  | `npm i -g prettier`                                  |
+| shfmt                     | `brew install shfmt` / `go install mvdan.cc/sh/v3/cmd/shfmt@latest` |
 
 Format on save is on, plus `<leader>cf` on demand.
 
@@ -152,6 +156,8 @@ Format on save is on, plus `<leader>cf` on demand.
 | yamllint     | `brew install yamllint` / `pip install yamllint` |
 | ansible-lint | `pip install ansible-lint`                       |
 | eslint       | `npm i -g eslint`                                |
+| shellcheck   | `brew install shellcheck` / `apt install shellcheck` |
+| hadolint     | `brew install hadolint`                          |
 
 Linters run on read, write and leaving insert mode. A linter that is not
 installed is skipped silently.
@@ -168,6 +174,9 @@ installed is skipped silently.
   does not override it for you.
 - Pyright's "unnecessary" hints are disabled (`disableTaggedHints`) because they
   duplicate ruff's `F401`. Pyright's real errors are untouched.
+- **hadolint** and **shellcheck** cover the two filetypes this distro already
+  compiled treesitter parsers for but previously left unchecked. Both are
+  optional like every other tool here.
 
 ### AI completion
 

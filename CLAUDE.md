@@ -79,7 +79,9 @@ consumed everywhere downstream:
 
 Changing either means updating the matching keys in `lsp.lua` (`filetypes`),
 `format.lua` (`formatters_by_ft`), `lint.lua` (`linters_by_ft`) and the
-treesitter `FileType` autocmd together.
+treesitter `FileType` autocmd together. The same four-way sync applies to the
+plain filetypes: `sh`/`bash` (bashls + shellcheck + shfmt), `dockerfile`
+(dockerls + hadolint) and `json` (jsonls + prettier).
 
 ### Deliberate deviations worth preserving
 
